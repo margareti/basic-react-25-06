@@ -3,11 +3,11 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import Article from './article'
 import accordion from '../decorators/accordion'
-import { filtratedArticlesSelector } from '../selectors'
+import { filteredArticlesSelector } from '../selectors'
 
 export class ArticleList extends Component {
   static propTypes = {
-    articles: PropTypes.array.isRequired,
+    // articles: PropTypes.,
     fetchData: PropTypes.func,
 
     //from accordion decorator
@@ -20,17 +20,18 @@ export class ArticleList extends Component {
   }
 
   render() {
-    console.log('---', 'rendering article list')
+    console.log('article list props', this.props)
     return <ul>{this.articles}</ul>
   }
 
   get articles() {
-    return this.props.articles.map((article) => (
-      <li key={article.id} className="test--article-list__item">
+    return Object.keys(this.props.articles).map((articleId) => (
+      <li key={articleId}>
         <Article
-          article={article}
-          isOpen={this.props.openItemId === article.id}
+          article={this.props.articles[articleId]}
+          comments={this.props.articles[articleId].comments}
           toggleOpen={this.props.toggleOpenItem}
+          isOpen={this.props.openItemId === articleId}
         />
       </li>
     ))
@@ -38,8 +39,7 @@ export class ArticleList extends Component {
 }
 
 export default connect((state) => {
-  console.log('---', 'article-list connect')
   return {
-    articles: filtratedArticlesSelector(state)
+    articles: filteredArticlesSelector(state)
   }
 })(accordion(ArticleList))

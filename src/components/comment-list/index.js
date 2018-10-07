@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import CSSTransition from 'react-addons-css-transition-group'
 import Comment from '../comment'
 import toggleOpen from '../../decorators/toggleOpen'
+import CommentForm from '../comment-form'
 import './style.css'
 
 class CommentList extends Component {
@@ -10,20 +11,17 @@ class CommentList extends Component {
     comments: PropTypes.array,
     //from toggleOpen decorator
     isOpen: PropTypes.bool,
-    toggleOpen: PropTypes.func
+    toggleOpen: PropTypes.func,
+    articleId: PropTypes.string
   }
-
-  /*
-  static defaultProps = {
-    comments: []
-  }
-*/
 
   render() {
+    console.log(this.props)
     const { isOpen, toggleOpen } = this.props
     const text = isOpen ? 'hide comments' : 'show comments'
     return (
       <div>
+        <CommentForm articleId={this.props.articleId} />
         <button onClick={toggleOpen} className="test--comment-list__btn">
           {text}
         </button>

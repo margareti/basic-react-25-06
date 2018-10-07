@@ -22,6 +22,7 @@ Comment.propTypes = {
 
 const initMapStateToProps = () => {
   const commentSelector = createCommentSelector()
+  // console.log(commentSelector)
 
   return (state, ownProps) => ({
     comment: commentSelector(state, ownProps)

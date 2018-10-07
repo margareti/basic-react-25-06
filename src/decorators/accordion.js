@@ -7,12 +7,15 @@ export default (OriginalComponent) =>
       openItemId: null
     }
 
-    toggleOpenItem = (openItemId) =>
+    toggleOpenItem = (openItemId) => {
+      console.log(openItemId)
       this.setState({
         openItemId: openItemId === this.state.openItemId ? null : openItemId
       })
+    }
 
     render() {
+      console.log('accordion rerender')
       return (
         <OriginalComponent
           {...this.props}

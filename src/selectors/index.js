@@ -5,7 +5,7 @@ export const articleListSelector = (state) => state.articles
 export const commentsSelector = (state) => state.comments
 export const idSelector = (_, props) => props.id
 
-export const filtratedArticlesSelector = createSelector(
+export const filteredArticlesSelector = createSelector(
   articleListSelector,
   filtersSelector,
   (articles, filters) => {
@@ -14,15 +14,24 @@ export const filtratedArticlesSelector = createSelector(
       selected,
       dateRange: { from, to }
     } = filters
+    let result = {}
 
-    return articles.filter((article) => {
+    const filtered = Object.keys(articles).filter((articleId) => {
+      const article = articles[articleId]
       const published = Date.parse(article.date)
+
       return (
         (!selected.length ||
-          selected.find((selected) => selected.value === article.id)) &&
+          selected.find((selected) => {
+            if (selected.value === article.id) {
+              return article
+            }
+          })) &&
         (!from || !to || (published > from && published < to))
       )
     })
+    filtered.map((item) => (result[item] = articles[item]))
+    return result
   }
 )
 

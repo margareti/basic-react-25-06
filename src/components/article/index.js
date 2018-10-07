@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import CommentList from '../comment-list'
@@ -6,7 +6,7 @@ import CSSTransition from 'react-addons-css-transition-group'
 import { deleteArticle } from '../../ac'
 import './style.css'
 
-class Article extends PureComponent {
+class Article extends Component {
   state = {
     error: null
   }
@@ -15,24 +15,32 @@ class Article extends PureComponent {
     this.setState({ error })
   }
 
+  componentWillReceiveProps(next) {
+    console.log('next', next)
+  }
+
   render() {
-    const { article, isOpen } = this.props
+    const { isOpen, article } = this.props
+    console.log('render article', this.props)
+
     return (
-      <div className="test--article__container">
-        <h3>
-          {article.title}
-          <button onClick={this.handleClick} className="test--article__btn">
-            {isOpen ? 'close' : 'open'}
-          </button>
-          <button onClick={this.handleDelete}>delete me</button>
-        </h3>
-        <CSSTransition
-          transitionName="article"
-          transitionEnterTimeout={500}
-          transitionLeaveTimeout={300}
-        >
-          {this.body}
-        </CSSTransition>
+      <div className="test--article-list__item">
+        <div className="test--article__container">
+          <h3>
+            {article.title}
+            <button onClick={this.handleClick} className="test--article__btn">
+              {isOpen ? 'close' : 'open'}
+            </button>
+            <button onClick={this.handleDelete}>delete me</button>
+          </h3>
+          <CSSTransition
+            transitionName="article"
+            transitionEnterTimeout={500}
+            transitionLeaveTimeout={300}
+          >
+            {this.body}
+          </CSSTransition>
+        </div>
       </div>
     )
   }
@@ -45,13 +53,15 @@ class Article extends PureComponent {
   }
 
   get body() {
-    const { isOpen, article } = this.props
-    if (!isOpen) return null
+    const { isOpen, comments, article } = this.props
 
+    if (!isOpen || !article) return null
     return (
       <section className="test--article__body">
         {article.text}
-        {!this.state.error && <CommentList comments={article.comments} />}
+        {!this.state.error && (
+          <CommentList comments={comments} articleId={article.id} />
+        )}
       </section>
     )
   }
@@ -63,7 +73,7 @@ Article.propTypes = {
     title: PropTypes.string.isRequired,
     text: PropTypes.string,
     comments: PropTypes.array
-  }).isRequired,
+  }),
 
   isOpen: PropTypes.bool,
   toggleOpen: PropTypes.func.isRequired
