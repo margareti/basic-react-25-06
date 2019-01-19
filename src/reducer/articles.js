@@ -16,6 +16,7 @@ const ArticleRecord = Record({
   title: null,
   date: null,
   loading: false,
+  loaded: false,
   comments: []
 })
 
@@ -57,7 +58,7 @@ export default (articles = new ReducerState(), action) => {
     case LOAD_ARTICLE + SUCCESS:
       return articles.setIn(
         ['entities', payload.id],
-        new ArticleRecord(response)
+        new ArticleRecord({ ...response, loaded: true })
       )
 
     default:

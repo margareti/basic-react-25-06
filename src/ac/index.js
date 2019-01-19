@@ -1,6 +1,7 @@
 import {
   INCREMENT,
   DELETE_ARTICLE,
+  GET_COMMENTS,
   CHANGE_DATE_RANGE,
   CHANGE_SELECTION,
   ADD_COMMENT,
@@ -83,6 +84,32 @@ export function loadArticle(id) {
         dispatch({
           type: LOAD_ARTICLE + FAIL,
           payload: { id },
+          error
+        })
+      )
+  }
+}
+
+export function loadComments(articleId) {
+  return (dispatch) => {
+    dispatch({
+      type: GET_COMMENTS + START,
+      payload: { articleId }
+    })
+
+    fetch(`/api/comment?article=${articleId}`)
+      .then((res) => res.json())
+      .then((response) =>
+        dispatch({
+          type: GET_COMMENTS + SUCCESS,
+          payload: { articleId },
+          response
+        })
+      )
+      .catch((error) =>
+        dispatch({
+          type: GET_COMMENTS + FAIL,
+          payload: { articleId },
           error
         })
       )

@@ -6,6 +6,7 @@ import Loader from '../common/loader'
 import CSSTransition from 'react-addons-css-transition-group'
 import { deleteArticle, loadArticle } from '../../ac'
 import './style.css'
+import { commentsLoadedSelector } from '../../selectors'
 
 class Article extends PureComponent {
   state = {
@@ -24,6 +25,7 @@ class Article extends PureComponent {
 
   render() {
     const { article, isOpen } = this.props
+    console.log('article', article)
     return (
       <div className="test--article__container">
         <h3>
@@ -33,18 +35,21 @@ class Article extends PureComponent {
           </button>
           <button onClick={this.handleDelete}>delete me</button>
         </h3>
+        {article.loading && <Loader />}
         <CSSTransition
           transitionName="article"
-          transitionEnterTimeout={500}
-          transitionLeaveTimeout={300}
+          transitionEnterTimeout={700}
+          transitionLeaveTimeout={500}
         >
-          {this.body}
+          {article.loaded && this.body}
         </CSSTransition>
       </div>
     )
   }
 
-  handleClick = () => this.props.toggleOpen(this.props.article.id)
+  handleClick = () => {
+    this.props.toggleOpen(this.props.article.id)
+  }
 
   handleDelete = () => {
     const { article, deleteArticle } = this.props
@@ -54,10 +59,8 @@ class Article extends PureComponent {
   get body() {
     const { isOpen, article } = this.props
     if (!isOpen) return null
-    if (article.loading) return <Loader />
-
     return (
-      <section className="test--article__body">
+      <section className="test--article__body" style={{ background: 'pink' }}>
         {article.text}
         {!this.state.error && <CommentList article={article} />}
       </section>
