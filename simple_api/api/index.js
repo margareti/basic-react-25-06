@@ -42,25 +42,32 @@ router.post('/article', function(req, res, next) {
 
 router.get('/comment', function(req, res, next) {
   var aid = req.query.article
+  var comments = []
   if (aid) {
     var article = mocks.articles.find(function(article) {
       return article.id == aid
     })
-    return reply(
-      res,
-      (article.comments || []).map(function(id) {
-        return mocks.comments.find(function(comment) {
-          return comment.id == id
-        })
+    // return reply(
+    //   res,
+    //   (article.comments || []).map(function(id) {
+    //     return mocks.comments.find(function(comment) {
+    //       return comment.id == id
+    //     })
+    //   })
+    // )
+    comments = (article.comments || []).map(function(id) {
+      return mocks.comments.find(function(comment) {
+        return comment.id == id
       })
-    )
+    })
+    console.log(comments)
   }
 
-  var limit = Number(req.query.limit) || mocks.comments.length,
+  var limit = Number(req.query.limit) || comments.length,
     offset = Number(req.query.offset) || 0
   reply(res, {
-    total: mocks.comments.length,
-    records: mocks.comments.slice(offset, limit + offset)
+    total: comments.length,
+    records: comments.slice(offset, limit + offset)
   })
 })
 

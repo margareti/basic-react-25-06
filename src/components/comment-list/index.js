@@ -7,11 +7,14 @@ import CommentForm from '../comment-form'
 import Loader from '../common/loader'
 import toggleOpen from '../../decorators/toggleOpen'
 import { loadArticleComments } from '../../ac'
+import { articleSelector } from '../../selectors'
+import { commentsSelector } from '../../selectors'
+import { Link } from 'react-router-dom'
 import './style.css'
 
 class CommentList extends Component {
   static propTypes = {
-    article: PropTypes.object.isRequired,
+    article: PropTypes.object,
     //from toggleOpen decorator
     isOpen: PropTypes.bool,
     toggleOpen: PropTypes.func
@@ -21,27 +24,43 @@ class CommentList extends Component {
   static defaultProps = {
     comments: []
   }
+
 */
-  componentDidUpdate(oldProps) {
-    const { isOpen, article, loadArticleComments } = this.props
-    if (
-      isOpen &&
-      !oldProps.isOpen &&
-      !article.commentsLoading &&
-      !article.commentsLoaded
-    ) {
-      loadArticleComments(article.id)
+  componentDidMount() {
+    const { article, loadArticleComments, pageNum } = this.props
+    if (!article || !article.id) {
+      return null
     }
+    loadArticleComments(article.id, pageNum || 0)
+  }
+  componentDidUpdate(oldProps) {
+    // console.log('did update comment list', this.props)
+    const {
+      article,
+      loadArticleComments,
+      pageNum,
+      commentsLoading
+    } = this.props
+    if (article) {
+      if (article.id && !oldProps.article) {
+        return loadArticleComments(article.id, pageNum || 0)
+      }
+      // if (article.id !== oldProps.article.id) {
+      //   return loadArticleComments(article.id, pageNum)
+      // }
+    }
+
+    // if ((!this.props.comments.size || (pageNum !== oldProps.pageNum)) && !commentsLoading) {
+    //   return loadArticleComments(article.id, pageNum)
+
+    // }
   }
 
   render() {
-    const { isOpen, toggleOpen } = this.props
-    const text = isOpen ? 'hide comments' : 'show comments'
+    console.log('comment list', this.props)
+    if (!this.props.article) return null
     return (
       <div>
-        <button onClick={toggleOpen} className="test--comment-list__btn">
-          {text}
-        </button>
         <CSSTransition
           transitionName="comments"
           transitionEnterTimeout={500}
@@ -55,20 +74,21 @@ class CommentList extends Component {
 
   getBody() {
     const {
-      article: { comments, id, commentsLoading, commentsLoaded },
-      isOpen
+      article: { id },
+      commentsLoading
     } = this.props
-    if (!isOpen) return null
-    if (commentsLoading) return <Loader />
-    if (!commentsLoaded) return null
+    if (commentsLoading) {
+      return <Loader />
+    }
 
     return (
       <div className="test--comment-list__body">
-        {comments.length ? (
+        {/* {comments.size ? (
           this.comments
         ) : (
           <h3 className="test--comment-list__empty">No comments yet</h3>
-        )}
+        )} */}
+        {this.props.comments.size > 0 && this.comments}
         <CommentForm articleId={id} />
       </div>
     )
@@ -77,17 +97,47 @@ class CommentList extends Component {
   get comments() {
     return (
       <ul>
-        {this.props.article.comments.map((id) => (
-          <li key={id} className="test--comment-list__item">
-            <Comment id={id} />
+        {this.props.comments.valueSeq().map((comment) => (
+          <li key={comment.id} className="test--comment-list__item">
+            <Comment comment={comment} />
           </li>
         ))}
+        {this.pagination}
       </ul>
+    )
+  }
+
+  get pagination() {
+    return (
+      <div>
+        {this.props.pageNum > 0 && (
+          <Link
+            to={`/articles/${this.props.article.id}/comments/${this.props
+              .pageNum - 1}`}
+          >
+            Prev
+          </Link>
+        )}
+        {this.props.pageNum + 1}
+        {this.props.maxPages > this.props.pageNum + 1 && (
+          <Link
+            to={`/articles/${this.props.article.id}/comments/${this.props
+              .pageNum + 1}`}
+          >
+            Next
+          </Link>
+        )}
+      </div>
     )
   }
 }
 
 export default connect(
-  null,
+  (state, ownProps) => ({
+    article: articleSelector(state, ownProps),
+    comments: commentsSelector(state, ownProps),
+    maxPages: state.comments.get('maxPages'),
+    commentsLoading: state.comments.loading
+  }),
   { loadArticleComments }
-)(toggleOpen(CommentList))
+)(CommentList)

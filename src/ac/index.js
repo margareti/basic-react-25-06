@@ -90,10 +90,11 @@ export function loadArticle(id) {
   }
 }
 
-export function loadArticleComments(articleId) {
+export function loadArticleComments(articleId, offset = 0) {
+  console.log('loading article comments')
   return {
     type: LOAD_ARTICLE_COMMENTS,
     payload: { articleId },
-    callAPI: `/api/comment?article=${articleId}`
+    callAPI: `/api/comment?article=${articleId}&offset=${offset * 2}&limit=2`
   }
 }

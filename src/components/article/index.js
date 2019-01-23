@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import CommentList from '../comment-list'
+import { Link } from 'react-router-dom'
 import Loader from '../common/loader'
 import CSSTransition from 'react-addons-css-transition-group'
 import { deleteArticle, loadArticle } from '../../ac'
@@ -18,22 +19,33 @@ class Article extends PureComponent {
   }
 
   componentDidMount() {
-    const { loadArticle, article, id } = this.props
+    const { loadArticle, article, id, loading } = this.props
 
-    if (!article || (!article.text && !article.loading)) loadArticle(id)
+    console.log('did mount', loading)
+    console.log(this.props.articlesState.toJS())
+    if (loading === false && (!article || !article.text)) {
+      loadArticle(id)
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const { loadArticle, article, id, loading } = this.props
+    console.log('did update', loading)
+    if (!loading && (!article || !article.text)) {
+      loadArticle(id)
+    }
   }
 
   render() {
     const { article, isOpen } = this.props
     if (!article) return null
 
+    console.log('articles state', this.props.articlesState.toJS())
+
     return (
       <div className="test--article__container">
         <h3>
           {article.title}
-          <button onClick={this.handleClick} className="test--article__btn">
-            {isOpen ? 'close' : 'open'}
-          </button>
           <button onClick={this.handleDelete}>delete me</button>
         </h3>
         <CSSTransition
@@ -43,6 +55,10 @@ class Article extends PureComponent {
         >
           {this.body}
         </CSSTransition>
+        <Link to={`/articles/${this.props.article.get('id')}/comments`}>
+          {' '}
+          See comments
+        </Link>
       </div>
     )
   }
@@ -62,7 +78,6 @@ class Article extends PureComponent {
     return (
       <section className="test--article__body" key="body">
         {article.text}
-        {!this.state.error && <CommentList article={article} />}
       </section>
     )
   }
@@ -79,12 +94,14 @@ Article.propTypes = {
   }),
 
   isOpen: PropTypes.bool,
-  toggleOpen: PropTypes.func.isRequired
+  toggleOpen: PropTypes.func
 }
 
 export default connect(
   (state, ownProps) => ({
-    article: articleSelector(state, ownProps)
+    article: articleSelector(state, ownProps),
+    loading: state.articles.loading,
+    articlesState: state.articles
   }),
   { deleteArticle, loadArticle }
 )(Article)

@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { createCommentSelector } from '../selectors'
 
 function Comment({ comment }) {
+  console.log(comment)
   return (
     <div>
       {comment.text} <b>by {comment.user}</b>
@@ -20,12 +21,13 @@ Comment.propTypes = {
   })
 }
 
-const initMapStateToProps = () => {
-  const commentSelector = createCommentSelector()
+// const initMapStateToProps = () => {
+//   const commentSelector = createCommentSelector()
 
-  return (state, ownProps) => ({
-    comment: commentSelector(state, ownProps)
-  })
-}
+//   return (state, ownProps) => ({
+//     comment: commentSelector(state, ownProps)
+//   })
+// }
 
-export default connect(initMapStateToProps)(Comment)
+// export default connect(initMapStateToProps)(Comment)
+export default Comment
